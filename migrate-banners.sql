@@ -1,0 +1,3 @@
+-- Import ครั้งเดียว สำหรับฐานข้อมูลที่ติดตั้งไว้แล้ว
+SET NAMES utf8mb4;
+CREATE TABLE banners(id INT AUTO_INCREMENT PRIMARY KEY,image VARCHAR(60) NOT NULL,title VARCHAR(150) DEFAULT '',subtitle VARCHAR(255) DEFAULT '',link VARCHAR(255) DEFAULT '',sort_order INT NOT NULL DEFAULT 0,active TINYINT NOT NULL DEFAULT 1)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
