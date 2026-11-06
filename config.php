@@ -107,9 +107,10 @@ function pcard($p)
 }
 function head($t, $act = '')
 {
+
     $n = array_sum($_SESSION['cart'] ?? []);
     $nav = ['home' => ['index.php', 'หน้าแรก'], 'products' => ['products.php', 'สินค้า'], 'orders' => ['my-orders.php', 'คำสั่งซื้อของฉัน'], 'contact' => ['#contact', 'ติดต่อเรา']];
-    echo '<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' . e($t) . ' - ' . e(setting('shop_name', 'RiceShop')) . '</title><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="assets/style.css"></head><body><header class="top"><div class="wrap"><a class="logo" href="index.php">' . (setting('logo') ? '<img src="uploads/logo/' . e(setting('logo')) . '" alt=""> ' : '🌾 ') . e(setting('shop_name', 'RiceShop')) . '</a><nav>';
+    echo '<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' . e($t) . ' - ' . e(setting('shop_name', 'RiceShop')) . '</title><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"><link rel="stylesheet" href="assets/style.css"></head><body><header class="top"><div class="wrap"><a class="logo" href="index.php">' . (setting('logo') ? '<img src="uploads/logo/' . e(setting('logo')) . '" alt=""> ' : '🌾 ') . e(setting('shop_name', 'RiceShop')) . '</a><nav>';
     foreach ($nav as $k => [$u, $l]) echo '<a href="' . $u . '" class="' . ($act == $k ? 'on' : '') . '">' . $l . '</a>';
     $u = user();
     echo $u ? bell('user', $u['id']) . '<span class="mu">👤 ' . e($u['phone']) . '</span><a href="login.php?out=1">ออกจากระบบ</a>' : '<a href="login.php">เข้าสู่ระบบ</a>';

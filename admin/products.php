@@ -18,6 +18,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     q('DELETE FROM products WHERE id=?', [$id]);
     $_SESSION['flash'] = 'ลบสินค้าแล้ว';
   }
+  if ($a == 'csave') {
+    $cn = trim($_POST['cname'] ?? '');
+    $ci = trim($_POST['cicon'] ?? '') ?: '🌾';
+    if ($cn) {
+      if ($id) q('UPDATE categories SET name=?,icon=? WHERE id=?', [$cn, $ci, $id]);
+      else q('INSERT INTO categories(name,icon) VALUES(?,?)', [$cn, $ci]);
+      $_SESSION['flash'] = 'บันทึกหมวดหมู่แล้ว';
+    }
+  }
+  if ($a == 'cdel') {
+    q('UPDATE products SET category_id=NULL WHERE category_id=?', [$id]);
+    q('DELETE FROM categories WHERE id=?', [$id]);
+    $_SESSION['flash'] = 'ลบหมวดหมู่แล้ว';
+  }
   header('Location: products.php');
   exit;
 }
@@ -29,6 +43,46 @@ foreach (q('SELECT * FROM products ORDER BY id DESC')->fetchAll() as $p)
   echo '<tr><td>' . ($p['image'] ? '<img src="../uploads/products/' . e($p['image']) . '">' : '🌾') . '</td><td>' . e($p['name']) . '<br><span class="mu">' . e($p['size']) . '</span></td><td>' . baht($p['price']) . '</td><td style="' . ($p['stock'] < 5 ? 'color:var(--bad);font-weight:700' : '') . '">' . $p['stock'] . '</td><td class="r" style="white-space:nowrap"><button type="button" class="btn sm line" onclick="pform(' . e(json_encode($p)) . ')">แก้ไข</button> ' . af('del', $p['id'], 'ลบ', 'bad') . '</td></tr>';
 echo '</table></div>';
 ?>
+<div class="card mt">
+  <div class="row" style="justify-content:space-between"><b>🏷️ หมวดหมู่สินค้า</b><button type="button" class="btn sm" onclick="cform()">+ เพิ่มหมวดหมู่</button></div>
+  <table class="tb">
+    <tr>
+      <th>ไอคอน</th>
+      <th>ชื่อหมวดหมู่</th>
+      <th>จำนวนสินค้า</th>
+      <th></th>
+    </tr>
+    <?php
+    foreach (q('SELECT c.*,(SELECT COUNT(*) FROM products p WHERE p.category_id=c.id) n FROM categories c ORDER BY c.id')->fetchAll() as $c)
+      echo '<tr><td style="font-size:22px">' . e($c['icon']) . '</td><td>' . e($c['name']) . '</td><td>' . $c['n'] . '</td><td class="r" style="white-space:nowrap"><button type="button" class="btn sm line" onclick="cform(' . e(json_encode($c)) . ')">แก้ไข</button> ' . af('cdel', $c['id'], 'ลบ', 'bad') . '</td></tr>';
+    ?>
+  </table>
+</div>
+
+<dialog id="cd" class="dlg" style="width:min(400px,94vw)">
+  <form method="post">
+    <?= csf() ?><input type="hidden" name="a" value="csave"><input type="hidden" name="id" id="c_id" value="0">
+    <div class="dh"><b id="c_t">เพิ่มหมวดหมู่</b><button type="button" class="dx" onclick="this.closest('dialog').close()">×</button></div>
+    <label>ชื่อหมวดหมู่</label><input name="cname" id="c_name" required>
+    <label>ไอคอน (อีโมจิ 1 ตัว เช่น 🍚)</label><input name="cicon" id="c_icon" maxlength="4">
+    <div class="row mt"><button class="btn">บันทึก</button><button type="button" class="btn line" onclick="this.closest('dialog').close()">ยกเลิก</button></div>
+  </form>
+</dialog>
+<script>
+  const dlgC = document.getElementById('cd');
+  dlgC.addEventListener('click', e => {
+    if (e.target === dlgC) dlgC.close();
+  });
+
+  function cform(d) {
+    d = d || {};
+    document.getElementById('c_t').textContent = d.id ? 'แก้ไขหมวดหมู่' : 'เพิ่มหมวดหมู่';
+    document.getElementById('c_id').value = d.id || 0;
+    document.getElementById('c_name').value = d.name || '';
+    document.getElementById('c_icon').value = d.icon || '';
+    dlgC.showModal();
+  }
+</script>
 <dialog id="pd" class="dlg">
   <form method="post" enctype="multipart/form-data">
     <?= csf() ?><input type="hidden" name="a" value="save"><input type="hidden" name="id" id="f_id" value="0">
